@@ -1,19 +1,20 @@
-"""OMG I CAN ACCESS THE API WITH THIS FILE"""
+"""Module for creating GET request for MAL's API."""
 
 import secrets
 import random
+import os
+from dotenv import load_dotenv
 
 BASE_URL = "https://myanimelist.net/v1/oauth2/authorize" # GET REQUEST
 redirect_uri = "" # OPTIONAL
 code_challenge_method = "" # OPTIONAL
-client_id = "" 
-client_secret = ""
+
 
 def build_url() -> str:
     """Builds GET request URL"""
-    configure()
+    load_dotenv()
 
-    return BASE_URL + f"?response_type:code&client_id={client_id}&code_challenge={generate_code_challenge()}&state={generate_state()}"
+    return BASE_URL + f"?response_type:code&client_id={os.environ.get("CLIENT_ID")}&code_challenge={generate_code_challenge()}&state={generate_state()}"
 
 
 def generate_code_challenge() -> str:
