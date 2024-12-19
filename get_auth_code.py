@@ -7,11 +7,11 @@ from env_loader import CLIENT_ID
 
 BASE_URL = "https://myanimelist.net/v1/oauth2/authorize" # GET REQUEST
 redirect_uri = "" # OPTIONAL
-code_challenge_method = "" # OPTIONAL
+code_challenge_method = "plain" # OPTIONAL
 
 
 def build_url() -> tuple[str, str]:
-    """Builds GET request URL"""
+    """Builds GET request URL. Returns tuple containing authenticator URL and code verifier."""
     code_challenge = generate_code_challenge()
 
     params = {
@@ -33,6 +33,14 @@ def build_url() -> tuple[str, str]:
     return get_req, code_challenge
 
 
+def get_authorization_code(redirect_url: str) -> str | None:
+    """Collects authorization code from direct URL. If no authorization code is found, None is returned."""
+    parsed_url = urllib.parse.urlparse(redirect_url)
+    authorization_code = urllib.parse.parse_qs(parsed_url.query).get("code", [None])[0]
+
+    return authorization_code
+
+
 def generate_code_challenge() -> str:
     """Generates code challenge"""
 
@@ -42,4 +50,4 @@ def generate_code_challenge() -> str:
 def generate_state() -> str:
     """Generates state"""
 
-    return "RequestID" + random.randrange(0, 100)
+    return "RequestID" + str(random.randrange(0, 100))
