@@ -10,13 +10,14 @@ redirect_uri = "" # OPTIONAL
 code_challenge_method = "" # OPTIONAL
 
 
-def build_url() -> str:
+def build_url() -> tuple[str, str]:
     """Builds GET request URL"""
+    code_challenge = generate_code_challenge()
 
     params = {
         "response_type": "code",
         "client_id": CLIENT_ID,
-        "code_challenge": generate_code_challenge(),
+        "code_challenge": code_challenge,
         "state": generate_state(),
         "redirect_uri": redirect_uri if redirect_uri else None,
         "code_challenge_method": code_challenge_method
@@ -26,7 +27,10 @@ def build_url() -> str:
 
     query_string = urllib.parse.urlencode(params)
 
-    return BASE_URL + "?" + query_string
+    get_req = BASE_URL + "?" + query_string
+    print("visit url to authorize: " + get_req)
+
+    return get_req, code_challenge
 
 
 def generate_code_challenge() -> str:
