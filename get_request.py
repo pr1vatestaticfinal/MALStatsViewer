@@ -2,22 +2,20 @@
 
 import secrets
 import random
-import os
-from dotenv import load_dotenv
 import urllib.parse
+from env_loader import CLIENT_ID
 
 BASE_URL = "https://myanimelist.net/v1/oauth2/authorize" # GET REQUEST
 redirect_uri = "" # OPTIONAL
-code_challenge_method = "S256" # OPTIONAL
+code_challenge_method = "" # OPTIONAL
 
 
 def build_url() -> str:
     """Builds GET request URL"""
-    load_dotenv()
 
     params = {
         "response_type": "code",
-        "client_id": os.environ.get("CLIENT_ID"),
+        "client_id": CLIENT_ID,
         "code_challenge": generate_code_challenge(),
         "state": generate_state(),
         "redirect_uri": redirect_uri if redirect_uri else None,

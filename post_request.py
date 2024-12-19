@@ -1,10 +1,10 @@
 """Module for obtaining a user's Access Token."""
 
-import os
 import urllib.error
 import urllib.request
 import urllib.parse
 import json
+from env_loader import CLIENT_ID, CLIENT_SECRET
 
 BASE_URL = "https://myanimelist.net/v1/oauth2/token"
 
@@ -14,8 +14,8 @@ def get_response(code: str, code_verifier: str) -> dict:
     Returns response in dictionary format (JSON parsed)."""
 
     data = {
-        "client_id": os.environ.get("CLIENT_ID"),
-        "client_secret": os.environ.get("CLIENT_SECRET"),
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
         "code": code,
         "code_verifier": code_verifier,
         "grant_type": "authorization_code"
@@ -37,7 +37,7 @@ def get_response(code: str, code_verifier: str) -> dict:
     
     except urllib.error.URLError as e:
         print(f"URLError: {e.reason}")
-        return {"error": error_message}
+        return {"error": e.reason}
     
     except Exception as e:
         print(f"Error: {str(e)}")
