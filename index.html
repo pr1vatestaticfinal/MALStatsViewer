@@ -1,39 +1,80 @@
 <!DOCTYPE html>
 <html>
+    <style>
+        .title {text-align: center;}
+        .login_button {text-align: center;}
+        .welcome {text-align: center;}
+    </style>
+
     <head>
         <title>MAL Stats Viewer</title>
     </head>
 
-    <body>
+    <body onload="welcomeText()">
         <div class="company">
-            <h1>Hello Sekai</h1>
+            <h2>Hello Sekai</h2>
         </div>
+
+        <br />
 
         <div class="title">
-            <h2>MyAnimeList Stats Viewer</h2>
+            <h1>MyAnimeList Stats Viewer</h1>
             <p>View your activities from your MyAnimeList account.</p>
-            <style>
-                .title {text-align: center;}
-            </style>
         </div>
 
-        <form> <!-- Asks for valid MAL username -->
-            <label for="username">Enter a valid MAL username:</label>
-            <br><br>
-            <input type="text" id="username" name="username">
-            <br><br>
-
+        <div class="login_button">
             <a href="https://www.youtube.com/watch?v=8wmj7LSjFIs"> <!-- Placeholder link for when uri gets implemented -->
-                <input type="button" value="Login with MyAnimeList" />
+            <input type="button" value="Login with MyAnimeList" />
             </a>
+        </div>
 
-            <style>
-                form {text-align: center;}
-            </style>
+        <br />
+        <br />
+        <br />
 
-        </form>
+        <div class="welcome">
+            <h1>Welcome, <span id="welcomeText"></h1>
+            <p>Select the timeframe to view data.</p>
+        </div>
 
+        <script>
+            var username = "Zach Hill";
+            var decades = 2;
+            var years = 10;
+            const welcome = document.getElementsByClassName("welcome")
 
+            /* for (let i = 0; i < welcome.length; i++) {
+                welcome[i].style.display = "none";
+            }
+            */
+
+            function welcomeText() {
+                document.getElementById("welcomeText").innerHTML = username;
+
+            }
+            /*generate buttons to display data in decades
+            TODO: DISPLAY SPECIFIC DECADES ON BUTTONS
+            The buttons stopped appearing so fix that
+            */
+            if (decades !== 0) {
+                let container = document.createElement("div");
+                container.style.display = "flex";
+                container.style.justifyContent = "center";
+                container.style.alignItems = "center";
+                container.style.flexWrap = "wrap";
+                container.style.margin = "0";
+
+                for (let i = 0; i < decades; i++) {
+                    let button = document.createElement("button");
+                    button.innerHTML = "decade";
+                    button.style.margin = "10px";
+                    container.body.appendChild(button);
+                }
+
+                document.body.appendChild(container);
+            }
+
+        </script>
 
     </body>
 </html>
