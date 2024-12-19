@@ -9,9 +9,19 @@ from env_loader import CLIENT_ID, CLIENT_SECRET
 BASE_URL = "https://myanimelist.net/v1/oauth2/token"
 
 
-def get_response(code: str, code_verifier: str) -> dict:
+def get_tokens(code: str, code_verifier: str) -> dict:
     """Sends a POST Request to obtain an Access Token.
-    Returns response in dictionary format (JSON parsed)."""
+    Returns response in dictionary format (JSON parsed).
+    Possible JSON Response:
+
+    {
+        "token_type": "Bearer",
+        "expires_in": 2678400,
+        "access_token": "a1b2c3...",
+        "refresh_token": "z9y8x7..."
+    }
+    
+    """
 
     data = {
         "client_id": CLIENT_ID,
