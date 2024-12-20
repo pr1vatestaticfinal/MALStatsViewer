@@ -2,8 +2,13 @@
 <html>
     <style>
         .title {text-align: center;}
-        .login_button {text-align: center;}
+        .loginButton {text-align: center;}
         .welcome {text-align: center;}
+        #decadesContainer {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
     </style>
 
     <head>
@@ -22,8 +27,8 @@
             <p>View your activities from your MyAnimeList account.</p>
         </div>
 
-        <div class="login_button">
-            <a href="https://www.youtube.com/watch?v=8wmj7LSjFIs"> <!-- Placeholder link for when uri gets implemented -->
+        <div class="loginButton">
+            <a href="https://www.youtube.com/watch?v=5t_aXmxUBDI"> <!-- Placeholder link for when uri gets implemented -->
             <input type="button" value="Login with MyAnimeList" />
             </a>
         </div>
@@ -37,42 +42,63 @@
             <p>Select the timeframe to view data.</p>
         </div>
 
+        <div id="decadesContainer"></div>
+
+        <br />
+
+        <div id="yearsContainer"></div>
+
         <script>
             var username = "Zach Hill";
             var decades = 2;
-            var years = 10;
+            var decadeStartYear = 2010;
+            const years = [2010, 2013, 2022];
             const welcome = document.getElementsByClassName("welcome")
+            
+            if (username !== "") {
+                for (let i = 0; i < welcome.length; i++) {
+                    welcome[i].style.display = "block";
 
-            /* for (let i = 0; i < welcome.length; i++) {
-                welcome[i].style.display = "none";
+                }
             }
-            */
+            else {
+                for (let i = 0; i < welcome.length; i++) {
+                    welcome[i].style.display = "none";
+                }
+            }
 
             function welcomeText() {
                 document.getElementById("welcomeText").innerHTML = username;
 
             }
-            /*generate buttons to display data in decades
-            TODO: DISPLAY SPECIFIC DECADES ON BUTTONS
-            The buttons stopped appearing so fix that
-            */
-            if (decades !== 0) {
-                let container = document.createElement("div");
-                container.style.display = "flex";
-                container.style.justifyContent = "center";
-                container.style.alignItems = "center";
-                container.style.flexWrap = "wrap";
-                container.style.margin = "0";
+            //generates buttons to display data in decades  
+            buttonContainer = document.getElementById("decadesContainer");
 
+            if (decades !== 0) {
                 for (let i = 0; i < decades; i++) {
-                    let button = document.createElement("button");
-                    button.innerHTML = "decade";
-                    button.style.margin = "10px";
-                    container.body.appendChild(button);
+                    let buttonLabel = String(decadeStartYear) + "'s";
+                    const button = document.createElement("button");
+                    button.textContent = buttonLabel;
+                    //button.addEventListener("click",  summonYears);
+                    buttonContainer.appendChild(button);
+                    decadeStartYear = decadeStartYear + 10;
+                }
+            }
+
+            /*function summonYears() {
+                let container = {}
+                for (let i = 0; i < years.length; i++) {
+                    let buttonLabel = String(years[i])
+                    if (years[i])
+                    const button = document.createElement("button");
+                    button.textContent = buttonLabel;
+                    //button.addEventListener("click", placeHolder)
+                    container.appendChild(button);
                 }
 
-                document.body.appendChild(container);
-            }
+                document.getElementById("yearsContainer").innerHTML = container
+
+            }*/
 
         </script>
 
