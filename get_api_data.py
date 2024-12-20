@@ -41,6 +41,7 @@ def get_user_anime_list(access_token: str, offset=0) -> dict:
 
     params = {
         "sort": "list_score",
+        "fields": "list_status",
         "offset": offset
     }
 
