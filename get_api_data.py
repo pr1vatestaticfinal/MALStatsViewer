@@ -35,7 +35,43 @@ def get_username(access_token: str) -> str:
     
 
 def get_user_anime_list(access_token: str, offset=0) -> dict:
-    """Gets anime list associated with user."""
+    """Gets anime list associated with user.
+    
+    Format:
+    {
+        "data": 
+        [
+            {
+                "node":
+                {
+                    "id": 123,
+                    "title": "ANIME",
+                    "main_picture":
+                        {
+                            "medium": "url.jpg",
+                            "large": "url.jpg"
+                        }
+                },
+                "list_status":
+                {
+                    "status": "completed",
+                    "score": 10,
+                    "num_episodes_watched": 21,
+                    "is_rewatching": False,
+                    "updated_at": "2024-01-01..."
+                }
+            },
+
+            {
+                "node"...
+            }
+        ],
+        "paging":
+        {
+            "next": "url.net/?query_string"
+        }
+    }
+    """
 
     url = "https://api.myanimelist.net/v2/users/@me/animelist"
 
