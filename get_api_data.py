@@ -104,3 +104,27 @@ def get_user_anime_list(access_token: str, offset=0) -> dict:
     except Exception as e:
         print(f"Error: {str(e)}")
         return {"error": str(e)}
+    
+
+def get_title(list_item: dict) -> str:
+    """Gets title of anime in node."""
+
+    return list_item.get("node").get("title")
+
+
+def get_img_url(list_item: dict) -> str:
+    """Gets URL of image of anime in node."""
+    
+    return list_item.get("node").get("main_picture").get("medium", "no img")
+
+
+def get_user_score(list_item: dict) -> int:
+    """Gets user score of anime in list status."""
+
+    return list_item.get("list_status").get("score", "N/A")
+
+
+def get_updated_at_date(list_item: dict):
+    """Gets date in which user updated anime to list."""
+
+    return list_item.get("list_status").get("updated_at")[:10]

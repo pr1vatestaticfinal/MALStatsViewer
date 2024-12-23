@@ -54,8 +54,9 @@ def get_tokens(code: str, code_verifier: str) -> dict:
         return {"error": str(e)}
 
 
-def refresh_token(refresh_token: str):
+def refresh_token(refresh_token: str) -> dict:
     """Grants user new access token after the previous one expires.
+    Returns same dictionary format.
     
     Possible JSON Response:
 
