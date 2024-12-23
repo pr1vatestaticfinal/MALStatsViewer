@@ -12,6 +12,10 @@
     </style>
 
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.10.2/core.css">
+        <script type="module" src="https://pyscript.net/releases/2024.10.2/core.js"></script>
         <title>MAL Stats Viewer</title>
     </head>
 
@@ -28,7 +32,7 @@
         </div>
 
         <div class="loginButton">
-            <a href="https://www.youtube.com/watch?v=5t_aXmxUBDI"> <!-- Placeholder link for when uri gets implemented -->
+            <a id="dynamic-link" href="https://www.youtube.com/watch?v=5t_aXmxUBDI"> <!-- Placeholder link for when uri gets implemented -->
             <input type="button" value="Login with MyAnimeList" />
             </a>
         </div>
@@ -48,13 +52,25 @@
 
         <div id="yearsContainer"></div>
 
+        <script type="py" src="get_auth_code.py"></script>
+        <script type="py" src="get_api_data.py"></script>
+
         <script>
+            /*async function buildURL() {
+                const response = await fetch("/auth-code");
+                const data = await response.json();
+                document.getElementById("dynamic-link").href = data.auth_code[0]
+            }*/
+
+            const link = pyodide.globals.get("req");
             var username = "Zach Hill";
             var decades = 2;
             var decadeStartYear = 2010;
             const years = [2010, 2013, 2022];
             const welcome = document.getElementsByClassName("welcome")
             
+            document.getElementById("dynamic-link").href = link;
+
             if (username !== "") {
                 for (let i = 0; i < welcome.length; i++) {
                     welcome[i].style.display = "block";
