@@ -52,71 +52,9 @@
 
         <div id="yearsContainer"></div>
 
-        <script type="py" src="get_auth_code.py"></script>
-        <script type="py" src="get_api_data.py"></script>
+        <script type="py" src="script.py"></script>
 
-        <script>
-            /*async function buildURL() {
-                const response = await fetch("/auth-code");
-                const data = await response.json();
-                document.getElementById("dynamic-link").href = data.auth_code[0]
-            }*/
-
-            const link = pyodide.globals.get("req");
-            var username = "Zach Hill";
-            var decades = 2;
-            var decadeStartYear = 2010;
-            const years = [2010, 2013, 2022];
-            const welcome = document.getElementsByClassName("welcome")
-            
-            document.getElementById("dynamic-link").href = link;
-
-            if (username !== "") {
-                for (let i = 0; i < welcome.length; i++) {
-                    welcome[i].style.display = "block";
-
-                }
-            }
-            else {
-                for (let i = 0; i < welcome.length; i++) {
-                    welcome[i].style.display = "none";
-                }
-            }
-
-            function welcomeText() {
-                document.getElementById("welcomeText").innerHTML = username;
-
-            }
-            //generates buttons to display data in decades  
-            buttonContainer = document.getElementById("decadesContainer");
-
-            if (decades !== 0) {
-                for (let i = 0; i < decades; i++) {
-                    let buttonLabel = String(decadeStartYear) + "'s";
-                    const button = document.createElement("button");
-                    button.textContent = buttonLabel;
-                    //button.addEventListener("click",  summonYears);
-                    buttonContainer.appendChild(button);
-                    decadeStartYear = decadeStartYear + 10;
-                }
-            }
-
-            /*function summonYears() {
-                let container = {}
-                for (let i = 0; i < years.length; i++) {
-                    let buttonLabel = String(years[i])
-                    if (years[i])
-                    const button = document.createElement("button");
-                    button.textContent = buttonLabel;
-                    //button.addEventListener("click", placeHolder)
-                    container.appendChild(button);
-                }
-
-                document.getElementById("yearsContainer").innerHTML = container
-
-            }*/
-
-        </script>
+        <script type="text/javascript" src="stats.js"></script>
 
     </body>
 </html>
