@@ -1,6 +1,6 @@
 [build]
-functions = "functions"
-publish = "static"
+functions = "netlify/functions"
+publish = "."
 
 [[plugins]]
-package = "@netlify/plugin-functions-python"
+package = "@netlify/plugin-functions-core"
