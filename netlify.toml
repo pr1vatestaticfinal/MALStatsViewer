@@ -1,6 +1,3 @@
 [build]
-functions = "netlify/functions"
-publish = "."
+functions = "netlify/functions/"
 
-[[plugins]]
-package = "@netlify/plugin-functions-core"
