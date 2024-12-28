@@ -2,7 +2,7 @@ document.getElementById("dynamic-link").addEventListener("click", async(event) =
     event.preventDefault();
 
     try {
-        const response = await fetch("/.netlify/functions/")
+        const response = await fetch("/.netlify/functions/auth_code_url")
 
         if (!response.ok) {
             throw new Error("failed to fetch auth URL");
