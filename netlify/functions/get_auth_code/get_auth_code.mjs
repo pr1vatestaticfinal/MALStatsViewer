@@ -1,8 +1,9 @@
 import crypto from "crypto";
-import querystring from "querystring"
+import querystring from "querystring";
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const BASE_URL = "https://myanimelist.net/v1/oauth2/authorize";
+const REDIRECT_URI = "verdant-kheer-7dee19.netlify.app/redirect";
 
 function generateCodeChallenge() {
   return crypto.randomBytes(100).toString("base64url").slice(0, 128)
@@ -20,7 +21,8 @@ export async function handler(event, context) {
     response_type: "code",
     client_id: CLIENT_ID,
     code_challenge: codeChallenge,
-    state: state
+    state: state,
+    redirect_uri: REDIRECT_URI
   };
 
   const authURL = `${BASE_URL}?${querystring.stringify(params)}`;
