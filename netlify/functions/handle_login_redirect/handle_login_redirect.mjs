@@ -13,4 +13,12 @@ export async function handler(event) {
 
   console.log("Authorization code: ", authCode);
   console.log("state: ", state);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      auth_code: authCode,
+      state: state
+    })
+  };
 }

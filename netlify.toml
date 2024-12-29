@@ -3,5 +3,5 @@ functions = "netlify/functions/"
 
 [[redirects]]
 from = "/redirect"
-to = "/.netlify/functions/handle_login_redirect
+to = "/.netlify/functions/handle_login_redirect"
 status = 200
