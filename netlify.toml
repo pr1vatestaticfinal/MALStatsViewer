@@ -2,6 +2,7 @@
 functions = "netlify/functions/"
 
 [[redirects]]
-from = "/redirect"
-to = "/.netlify/functions/handle_login_redirect"
+from = "/callback"
+to = "/callback.html"
 status = 200
+force = true

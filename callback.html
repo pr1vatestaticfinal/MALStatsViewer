@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Redirecting...</title>
+
+        <script>
+            function getQueryParam(param) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            }
+
+            window.onload = () => {
+                const authCode = getQueryParam("code");
+                const state = getQueryParam("state");
+
+                if (authCode && state) {
+                    sessionStorage.setItem("auth_code", authCode);
+                    sessionStorage.setItem("state", state);
+
+                    window.location.href = "/";
+                }
+                else {
+                    console.error("Authorization code or state not found in query string")
+                }
+            }
+        </script>
+    <head>
+
+    <body>
+        <h1>Redirecting...</h1>
+    <body>
+<html>
