@@ -11,20 +11,46 @@
                 return urlParams.get(param);
             }
 
-            window.onload = () => {
+            window.onload = async () => {
+                const urlParams = new URLSearchParams(window.location.search);
                 const authCode = getQueryParam("code");
                 const state = getQueryParam("state");
 
-                if (authCode && state) {
-                    sessionStorage.setItem("auth_code", authCode);
-                    sessionStorage.setItem("state", state);
+                if (!authCode || !state) {
+                    console.error("authorization code or state is missing");
+                    return;
+                }
 
-                    window.location.href = "/";
+                const codeVerifier = sessionStorage.getItem("code_challenge");
+
+                if (!codeVerifier) {
+                    console.error("code verifier is missing");
+                    return;
                 }
-                else {
-                    console.error("Authorization code or state not found in query string")
+
+                try {
+                    const response = await fetch("/.netlify/functions/get_access_token", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ code, code_verifier: codeVerifier })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.error("Error: ", data.error);
+                    }
+                    else {
+                        sessionStorage.setItem("access_token", data.access_token);
+                        sessionStorage.setItem("refresh_token", data.refresh_token);
+                        console.log("access tokens stored successfully");
+                        window.location.href = "/";
+                    }
                 }
-            }
+                catch (error) {
+                    console.error("Error: ", error)
+                }
+            };
         </script>
     <head>
 
