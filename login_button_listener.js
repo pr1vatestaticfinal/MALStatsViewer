@@ -12,7 +12,10 @@ document.getElementById("dynamic-link").addEventListener("click", async(event) =
         const authURL = data.auth_url;
         const codeChallenge = data.code_challenge;
 
-        sessionStorage.setItem("code_challenge", codeChallenge)
+        const expiryDate = new Date();
+        expiryDate.setTime(expiryDate.getTime() + (10 * 60 * 1000))
+
+        document.cookie = `code_challenge=${encodeURIComponent(codeChallenge)}; expires-${expiryDate.toUTCString()}; path=/; secure`;
 
         window.location.href = authURL;
     }
