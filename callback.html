@@ -6,17 +6,12 @@
         <title>Redirecting...</title>
 
         <script>
-            function getQueryParam(param) {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(param);
-            }
-
             window.onload = async () => {
                 const urlParams = new URLSearchParams(window.location.search);
-                const authCode = getQueryParam("code");
-                const state = getQueryParam("state");
+                const code = urlParams.get("code");
+                const state = urlParams.get("state");
 
-                if (!authCode || !state) {
+                if (!code || !state) {
                     console.error("authorization code or state is missing");
                     return;
                 }
@@ -52,9 +47,9 @@
                 }
             };
         </script>
-    <head>
+    </head>
 
     <body>
         <h1>Redirecting...</h1>
-    <body>
-<html>
+    </body>
+</html>
