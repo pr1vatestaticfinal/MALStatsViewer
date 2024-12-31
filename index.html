@@ -1,25 +1,13 @@
 <!DOCTYPE html>
 <html>
-    <style>
-        .title {text-align: center;}
-        .loginButton {text-align: center;}
-        .welcome {text-align: center;}
-        #decadesContainer {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-        }
-    </style>
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <link rel="stylesheet" href="https://pyscript.net/releases/2024.10.2/core.css">
-        <script type="module" src="https://pyscript.net/releases/2024.10.2/core.js"></script>
+        <link rel="stylesheet" href="style.css"></link>
         <title>MAL Stats Viewer</title>
     </head>
 
-    <body onload="welcomeText()">
+    <body>
         <div class="company">
             <h2>Hello Sekai</h2>
         </div>
@@ -41,16 +29,20 @@
         <br />
         <br />
 
-        <div class="welcome">
-            <h1>Welcome, <span id="welcomeText"></h1>
-            <p>Select the timeframe to view data.</p>
+        <div class="welcome"></div>
+
+        <div class="timeContainer">
+            <!-- Years button -->
+            <button class="years-button" id="years-toggle">Years</button>
+            <div class="years-content" id="years-choices"></div>
+
+            <!-- Decades button -->
+            <button class="decades-button" id="decades-toggle">Decades</button>
+            <div class="decades-content" id="decades-choices"></div>
+
+            <!-- All time button-->
+            <button class="alltime-button" id="alltime-toggle">All Time</button>
         </div>
-
-        <div id="decadesContainer"></div>
-
-        <br />
-
-        <div id="yearsContainer"></div>
 
         <script type="text/javascript" src="login_button_listener.js"></script>
 
