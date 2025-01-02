@@ -15,7 +15,7 @@ document.getElementById("dynamic-link").addEventListener("click", async(event) =
         const expiryDate = new Date();
         expiryDate.setTime(expiryDate.getTime() + (10 * 60 * 1000))
 
-        document.cookie = `code_challenge=${encodeURIComponent(codeChallenge)}; expires-${expiryDate.toUTCString()}; path=/; secure`;
+        document.cookie = `code_challenge=${encodeURIComponent(codeChallenge)}; expires=${expiryDate.toUTCString()}; path=/; secure`;
 
         window.location.href = authURL;
     }

@@ -6,3 +6,9 @@ from = "/callback"
 to = "/callback.html"
 status = 200
 force = true
+
+[[redirects]]
+from = "/stats"
+to = "/stats.html"
+status = 200
+force = true
