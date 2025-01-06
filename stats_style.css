@@ -20,7 +20,7 @@
 .info {
     text-align: center;
     font-style: italic;
-    padding: 10px;
+    padding: 7px;
 }
 #timeContainer {
     position: relative;
@@ -51,4 +51,9 @@ button {
 }
 .dropdown-content button:hover {
     background-color: blue;
+}
+.added {
+    text-align: center;
+    font-family: ;
+    margin: 10px;
 }
