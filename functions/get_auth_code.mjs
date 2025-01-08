@@ -12,7 +12,7 @@ function generateState() {
   return "RequestID" + Math.floor(Math.random() * 100);
 }
 
-export async function handler(event, context) {
+export async function onRequest(context) {
   const codeChallenge = generateCodeChallenge();
   const state = generateState();
 
@@ -25,11 +25,13 @@ export async function handler(event, context) {
 
   const authURL = `${BASE_URL}?${querystring.stringify(params)}`;
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
+  return new Response(
+    JSON.stringify({
       auth_url: authURL,
       code_challenge: codeChallenge
-    })
-  };
+    }),
+    {
+      headers: { "Content-Type": "application/json" }
+    }
+  )
 }
