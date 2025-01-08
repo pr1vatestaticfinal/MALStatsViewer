@@ -14,20 +14,31 @@
 
         <br />
 
-        <div class="welcome"></div>
+        <div class="heading">
+            <div class="welcome"></div>
+            <div class="signout">
+                <a href="/">(Sign out)</a>
+            </div>
+        </div>
 
-        <div class="timeContainer">
+        <div class="info">
+            <p>Pick a timeframe to view data.</p>
+        </div>
+
+        <div id="timeContainer">
             <!-- Years button -->
             <button class="years-button" id="years-toggle">Years</button>
-            <div class="years-content" id="years-choices"></div>
+            <div class="dropdown-content" id="years-choices"></div>
 
             <!-- Decades button -->
             <button class="decades-button" id="decades-toggle">Decades</button>
-            <div class="decades-content" id="decades-choices"></div>
+            <div class="dropdown-content" id="decades-choices"></div>
 
             <!-- All time button-->
             <button class="alltime-button" id="alltime-toggle">All Time</button>
         </div>
+
+        <div class="added"></div>
 
         <script type="text/javascript" src="stats.js"></script>
     </body>
