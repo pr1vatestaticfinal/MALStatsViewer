@@ -1,9 +1,10 @@
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const BASE_URL = "https://myanimelist.net/v1/oauth2/token";
 
 
-async function getTokens(code, codeVerifier) {
+async function getTokens(context, code, codeVerifier) {
+    const CLIENT_ID = context.env.CLIENT_ID;
+    const CLIENT_SECRET = context.env.CLIENT_SECRET;
+
     const data = {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
@@ -33,7 +34,10 @@ async function getTokens(code, codeVerifier) {
 }
 
 
-async function refreshToken(refreshToken) {
+async function refreshToken(context, refreshToken) {
+    const CLIENT_ID = context.env.CLIENT_ID;
+    const CLIENT_SECRET = context.env.CLIENT_SECRET;
+    
     const data = {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,

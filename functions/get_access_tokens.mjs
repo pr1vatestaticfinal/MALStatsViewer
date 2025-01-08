@@ -19,7 +19,7 @@ export async function onRequest(context) {
     );
   }
 
-  const tokens = await getTokens(code, code_verifier);
+  const tokens = await getTokens(context, code, code_verifier);
 
   if (tokens.error) {
     return new Response(

@@ -1,4 +1,3 @@
-const CLIENT_ID = process.env.CLIENT_ID;
 const BASE_URL = "https://myanimelist.net/v1/oauth2/authorize";
 
 function generateCodeChallenge() {
@@ -19,6 +18,8 @@ function generateState() {
 }
 
 export async function onRequest(context) {
+  const CLIENT_ID = context.env.CLIENT_ID;
+
   const codeChallenge = generateCodeChallenge();
   const state = generateState();
 
