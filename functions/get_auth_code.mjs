@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import querystring from "querystring";
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const BASE_URL = "https://myanimelist.net/v1/oauth2/authorize";
@@ -16,14 +15,14 @@ export async function onRequest(context) {
   const codeChallenge = generateCodeChallenge();
   const state = generateState();
 
-  const params = {
+  const params = new URLSearchParams({
     response_type: "code",
     client_id: CLIENT_ID,
     code_challenge: codeChallenge,
     state: state
-  };
+  });
 
-  const authURL = `${BASE_URL}?${querystring.stringify(params)}`;
+  const authURL = `${BASE_URL}?${params.toString()}`;
 
   return new Response(
     JSON.stringify({
