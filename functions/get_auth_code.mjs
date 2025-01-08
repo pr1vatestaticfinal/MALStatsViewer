@@ -1,10 +1,17 @@
-import crypto from "crypto";
-
 const CLIENT_ID = process.env.CLIENT_ID;
 const BASE_URL = "https://myanimelist.net/v1/oauth2/authorize";
 
 function generateCodeChallenge() {
-  return crypto.randomBytes(100).toString("base64url").slice(0, 128)
+  const buffer = new Uint8Array(100);
+  
+  crypto.getRandomValues(buffer);
+ 
+  let base64UrlString = btoa(String.fromCharCode.apply(null, buffer))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+ 
+  return base64UrlString.slice(0, 128);
 }
 
 function generateState() {
