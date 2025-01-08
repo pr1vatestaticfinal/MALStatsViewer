@@ -1,4 +1,4 @@
-import { getTokens } from "../../../access_token_helpers";
+import { getTokens } from "../access_token_helpers";
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
