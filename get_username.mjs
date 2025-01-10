@@ -9,7 +9,11 @@ async function getAccessToken() {
 
 export async function getUsername() {
     const url = "https://api.myanimelist.net/v2/users/@me";
-    const accessToken = getAccessToken()
+    const accessToken = getAccessToken();
+
+    if (!accessToken) {
+        return "null";
+    }
 
     try {
         const response = await fetch(url, {
