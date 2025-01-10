@@ -1,5 +1,3 @@
-const url = "https://api.myanimelist.net/v2/users/@me";
-
 async function getAccessToken() {
     const cookies = document.cookie.split("; ");
     const tokenCookie = cookies.find(cookie => cookie.startsWith("access_token="));
@@ -10,6 +8,7 @@ async function getAccessToken() {
 }
 
 export async function getUsername() {
+    const url = "https://api.myanimelist.net/v2/users/@me";
     const accessToken = getAccessToken()
 
     try {

@@ -1,15 +1,18 @@
 import { getUsername } from "./get_username.mjs";
 
-const username = getUsername();
 const decades = [];
 const years = [2013, 2014, 2022];
 const numOfAnimes = 5
 
-//site welcomes you by name
-const welcome = document.querySelector(".welcome");
-welcome.textContent = "Welcome, " + username;
-
+welcomeMessage();
 getDecades(years);
+
+async function welcomeMessage() {
+    const username = await getUsername();
+
+    const welcome = document.querySelector(".welcome");
+    welcome.textContent = "Welcome, " + username;
+}
 
 //exactly what it sounds like
 function getDecades(year) {
