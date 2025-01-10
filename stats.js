@@ -1,4 +1,4 @@
-import { getUsername } from "./get_username.mjs";
+import { getUsername } from "./get_username.js";
 
 const decades = [];
 const years = [2013, 2014, 2022];
