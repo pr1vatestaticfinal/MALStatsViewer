@@ -7,7 +7,7 @@ async function getAccessToken() {
     return null;
 }
 
-export async function getUsername() {
+async function getUsername() {
     const url = "https://api.myanimelist.net/v2/users/@me";
     const accessToken = getAccessToken();
 
@@ -39,3 +39,4 @@ export async function getUsername() {
     }
 }
 
+export { getUsername };
