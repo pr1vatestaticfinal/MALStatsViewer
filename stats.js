@@ -5,11 +5,9 @@ const decades = [];
 const years = [2013, 2014, 2022];
 const numOfAnimes = 5
 
-//when username is received, text is shown
-if (username == "username") {
-    const welcome = document.querySelector(".welcome");
-    welcome.textContent = "Welcome, " + username;
-}
+//site welcomes you by name
+const welcome = document.querySelector(".welcome");
+welcome.textContent = "Welcome, " + username;
 
 getDecades(years);
 
