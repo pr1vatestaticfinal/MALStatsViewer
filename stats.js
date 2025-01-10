@@ -1,4 +1,6 @@
-const username = "username";
+import { getUsername } from "./get_username.mjs";
+
+const username = getUsername();
 const decades = [];
 const years = [2013, 2014, 2022];
 const numOfAnimes = 5
