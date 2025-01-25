@@ -7,16 +7,16 @@ async function getAccessToken() {
     return null;
 }
 
-async function getUsername() {
-    const url = "https://api.myanimelist.net/v2/users/@me";
+async function getUsername(context) {
+    const PROXY_SERVER_URL = context.env.PROXY_SERVER_URL; //IMPORT VARIABLE FOR PROXY SERVER URL
     const accessToken = await getAccessToken();
 
-    if (!accessToken) {
+    if (accessToken == null) {
         return "null";
     }
 
     try {
-        const response = await fetch(url, {
+        const response = await fetch(`${PROXY_SERVER_URL}/proxy/users/@me`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
