@@ -8,7 +8,7 @@ welcomeMessage();
 getDecades(years);
 
 async function welcomeMessage() {
-    const username = await getUsername();
+    const username = await getUsername(env);
 
     const welcome = document.querySelector(".welcome");
     welcome.textContent = "Welcome, " + username;

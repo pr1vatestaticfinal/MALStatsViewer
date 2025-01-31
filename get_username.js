@@ -7,8 +7,8 @@ async function getAccessToken() {
     return null;
 }
 
-async function getUsername(context) {
-    const PROXY_SERVER_URL = context.env.PROXY_SERVER_URL; //IMPORT VARIABLE FOR PROXY SERVER URL
+async function getUsername(env) {
+    const PROXY_SERVER_URL = env.PROXY_SERVER_URL; //IMPORT VARIABLE FOR PROXY SERVER URL
     const accessToken = await getAccessToken();
 
     if (accessToken == null) {
