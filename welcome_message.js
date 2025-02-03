@@ -32,3 +32,5 @@ async function welcomeMessage() {
         document.querySelector(".welcome").textContent = "Welcome, null";
     }
 }
+
+export { welcomeMessage }
