@@ -19,6 +19,7 @@ export default {
 	async fetch(request) {
 		const url = new URL(request.url);
 		const path = url.pathname.replace("/proxy", "");
+		console.log(path); //debugging
 		const apiUrl = `https://api.myanimelist.net/v2${path}`;
 
 		const accessToken = request.headers.get("Authorization");
