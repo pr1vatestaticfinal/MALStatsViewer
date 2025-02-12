@@ -11,7 +11,7 @@ async function welcomeMessage() {
     const accessToken = await getAccessToken();
 
     try {
-        const response = await fetch("/proxy/users/@me", {
+        const response = await fetch("/proxy/users/@me?fields=username", {
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
@@ -24,7 +24,7 @@ async function welcomeMessage() {
         }
 
         const responseData = await response.json();
-        const username = responseData.name || "null";
+        const username = responseData.username || "null";
 
         document.querySelector(".welcome").textContent = `Welcome, ${username}`;
     } catch (error) {
