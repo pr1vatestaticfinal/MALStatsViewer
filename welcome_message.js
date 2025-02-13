@@ -7,11 +7,12 @@ async function getAccessToken() {
     return null;
 }
 
-async function welcomeMessage() {
+async function welcomeMessage(env) {
+    const PROXY_SERVER_URL = env.PROXY_SERVER_URL;
     const accessToken = await getAccessToken();
 
     try {
-        const response = await fetch("/proxy/users/@me?fields=username", {
+        const response = await fetch(`${PROXY_SERVER_URL}/users/@me`, {
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
@@ -24,7 +25,7 @@ async function welcomeMessage() {
         }
 
         const responseData = await response.json();
-        const username = responseData.username || "null";
+        const username = responseData.name || "null";
 
         document.querySelector(".welcome").textContent = `Welcome, ${username}`;
     } catch (error) {
