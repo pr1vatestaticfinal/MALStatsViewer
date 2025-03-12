@@ -8,11 +8,16 @@ async function getAccessToken() {
 }
 
 async function welcomeMessage() {
-    const PROXY_SERVER_URL = await fetch("/get_proxy_url").then(res=>res.text());
+    const PROXY_SERVER_URL = await fetch("/get_proxy_url", {
+        method: "get",
+        mode: "cors",
+    }).then(res=>res.text());
     const accessToken = await getAccessToken();
 
     try {
         const response = await fetch(`${PROXY_SERVER_URL}/users/@me`, {
+            method: "GET",
+            mode: "cors",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"

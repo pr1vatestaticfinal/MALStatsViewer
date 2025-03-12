@@ -25,6 +25,17 @@ export default {
 
 		const accessToken = request.headers.get("Authorization");
 
+		if (request.method === "OPTIONS") {
+			return new Response(null, {
+				status: 204,
+				headers: {
+					"Access-Control-Allow-Origin": "https://malstatsviewer.pages.dev",
+					"Access-Control-Allow-Methods": "GET, OPTIONS",
+					"Access-Control-Allow-Headers": "Content-Type, Authorization",
+				},
+			});
+		}
+
 		if (!accessToken) {
 			return new Response("Missing authorization header", { status: 401 });
 
@@ -36,6 +47,7 @@ export default {
 				headers: {
 					"Authorization": accessToken,
 					"Content-Type": "application/json",
+					"Accept": "application/json",
 				},
 			});
 
