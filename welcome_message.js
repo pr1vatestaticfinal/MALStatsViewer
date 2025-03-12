@@ -7,8 +7,8 @@ async function getAccessToken() {
     return null;
 }
 
-async function welcomeMessage(env) {
-    const PROXY_SERVER_URL = env.PROXY_SERVER_URL;
+async function welcomeMessage() {
+    const PROXY_SERVER_URL = await fetch("/get_proxy_url");
     const accessToken = await getAccessToken();
 
     try {
