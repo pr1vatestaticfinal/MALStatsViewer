@@ -8,7 +8,7 @@ async function getAccessToken() {
 }
 
 async function welcomeMessage() {
-    const PROXY_SERVER_URL = await fetch("/get_proxy_url");
+    const PROXY_SERVER_URL = await fetch("/get_proxy_url").then(res=>res.text());
     const accessToken = await getAccessToken();
 
     try {
