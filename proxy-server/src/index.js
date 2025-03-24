@@ -23,6 +23,8 @@ export default {
 		console.log(path); //debugging
 		const apiUrl = `https://api.myanimelist.net/v2${path}`;
 
+		const origin = request.headers.get("Origin") || "https://malstatsviewer.pages.dev";
+
 		const cookieHeader = request.headers.get("Cookie") || "";
 		const tokenMatch = cookieHeader.match(/access_token=([^;]+)/);
 		const accessToken = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
@@ -31,7 +33,7 @@ export default {
 			return new Response(null, {
 				status: 204,
 				headers: {
-					"Access-Control-Allow-Origin": "https://malstatsviewer.pages.dev",
+					"Access-Control-Allow-Origin": origin,
 					"Access-Control-Allow-Methods": "GET, OPTIONS",
 					"Access-Control-Allow-Headers": "Content-Type, Authorization",
 				},
@@ -58,7 +60,8 @@ export default {
 				status: response.status,
 				headers: {
 					"Content-Type": "application/json",
-					"Access-Control-Allow-Origin": "https://malstatsviewer.pages.dev",
+					"Access-Control-Allow-Origin": origin,
+					"Access-Control-Allow-Credentials": "true",
 				},
 			});
 		} catch (error) {
