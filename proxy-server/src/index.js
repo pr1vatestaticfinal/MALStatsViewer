@@ -36,13 +36,19 @@ export default {
 					"Access-Control-Allow-Origin": origin,
 					"Access-Control-Allow-Methods": "GET, OPTIONS",
 					"Access-Control-Allow-Headers": "Content-Type, Authorization",
+					"Access-Control-Allow-Credentials": "true"
 				},
 			});
 		}
 
 		if (!accessToken) {
-			return new Response("Missing authorization header", { status: 401 });
-
+			return new Response("Missing authorization header", {
+				status: 401,
+				headers: {
+					"Access-Control-Allow-Origin": origin,
+					"Access-Control-Allow-Credentials": "true",
+				},
+			});
 		}
 
 		try {
@@ -65,7 +71,13 @@ export default {
 				},
 			});
 		} catch (error) {
-			return new Response(`Error: ${error.message}`, { status: 500 });
+			return new Response(`Error: ${error.message}`, {
+				status: 500,
+				headers: {
+					"Access-Control-Allow-Origin": origin,
+					"Access-Control-Allow-Credentials": "true",
+				},
+			});
 		}
 	},
 };
