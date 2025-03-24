@@ -23,7 +23,9 @@ export default {
 		console.log(path); //debugging
 		const apiUrl = `https://api.myanimelist.net/v2${path}`;
 
-		const accessToken = request.headers.get("Authorization");
+		const cookieHeader = request.headers.get("Cookie") || "";
+		const tokenMatch = cookieHeader.match(/access_token=([^;]+)/);
+		const accessToken = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
 
 		if (request.method === "OPTIONS") {
 			return new Response(null, {
