@@ -50,8 +50,8 @@
                         const expiryDate = new Date();
                         expiryDate.setTime(expiryDate.getTime() + (10 * 60 * 1000))
 
-                        document.cookie = `access_token=${encodeURIComponent(data.access_token)}; expires=${expiryDate.toUTCString()}; path=/; secure; HttpOnly; SameSite = Strict;`;
-                        document.cookie = `refresh_token=${encodeURIComponent(data.refresh_token)}; expires=${expiryDate.toUTCString()}; path=/; secure; HttpOnly; SameSite = Strict;`;
+                        document.cookie = `access_token=${encodeURIComponent(data.access_token)}; expires=${expiryDate.toUTCString()}; path=/; secure; HttpOnly; SameSite = Lax;`;
+                        document.cookie = `refresh_token=${encodeURIComponent(data.refresh_token)}; expires=${expiryDate.toUTCString()}; path=/; secure; HttpOnly; SameSite = Lax;`;
                         console.log("access tokens stored successfully");
                         window.location.href = "/stats";
                     }
