@@ -18,7 +18,8 @@
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url);
-		const PROXY_SERVER_URL = env.PROXY_SERVER_URL
+		const PROXY_SERVER_URL = env.PROXY_SERVER_URL;
+
 		const path = url.pathname.replace(PROXY_SERVER_URL, "");
 		console.log(path); //debugging
 		const apiUrl = `https://api.myanimelist.net/v2${path}`;
@@ -65,6 +66,7 @@ export default {
 			});
 
 			const responseBody = await response.text();
+			
 			return new Response(responseBody, {
 				status: response.status,
 				headers: {

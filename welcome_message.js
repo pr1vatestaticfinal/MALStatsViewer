@@ -1,18 +1,9 @@
-async function getAccessToken() {
-    const cookies = document.cookie.split("; ");
-    const tokenCookie = cookies.find(cookie => cookie.startsWith("access_token="));
-    if (tokenCookie) {
-        return tokenCookie.split("=")[1];
-    }
-    return null;
-}
-
 async function welcomeMessage() {
     const PROXY_SERVER_URL = await fetch("/get_proxy_url", {
         method: "get",
         mode: "cors",
+        credentials: "include",
     }).then(res=>res.text());
-    const accessToken = await getAccessToken();
 
     try {
         const response = await fetch(`${PROXY_SERVER_URL}/users/@me`, {
@@ -20,14 +11,12 @@ async function welcomeMessage() {
             mode: "cors",
             credentials: "include",
             headers: {
-                "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
             }
         });
 
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
-
         }
 
         const responseData = await response.json();
@@ -40,4 +29,4 @@ async function welcomeMessage() {
     }
 }
 
-export { welcomeMessage }
+export { welcomeMessage };
