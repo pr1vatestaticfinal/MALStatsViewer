@@ -49,9 +49,17 @@
                     else {
                         const expiryDate = new Date();
                         expiryDate.setTime(expiryDate.getTime() + (10 * 60 * 1000))
+                        const PROXY_SERVER_URL = await fetch("/get_proxy_url", {
+                            method: "get",
+                            mode: "cors",
+                            credentials: "include",
+                        }).then(res=>res.text());
 
-                        document.cookie = `access_token=${encodeURIComponent(data.access_token)}; expires=${expiryDate.toUTCString()}; path=/; secure; HttpOnly; SameSite = Lax;`;
-                        document.cookie = `refresh_token=${encodeURIComponent(data.refresh_token)}; expires=${expiryDate.toUTCString()}; path=/; secure; HttpOnly; SameSite = Lax;`;
+                        const proxyURL = new URL(PROXY_SERVER_URL);
+                        const proxyDomain = proxyURL.hostname;
+
+                        document.cookie = `access_token=${encodeURIComponent(data.access_token)}; expires=${expiryDate.toUTCString()}; path=/; domain=${proxyDomain}; secure; HttpOnly; SameSite=Strict;`;
+                        document.cookie = `refresh_token=${encodeURIComponent(data.refresh_token)}; expires=${expiryDate.toUTCString()}; path=/; domain=${proxyDomain}; secure; HttpOnly; SameSite=Strict;`;
                         console.log("access tokens stored successfully");
                         window.location.href = "/stats";
                     }
