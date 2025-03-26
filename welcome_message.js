@@ -18,6 +18,7 @@ async function welcomeMessage() {
         const response = await fetch(`${PROXY_SERVER_URL}/users/@me`, {
             method: "GET",
             mode: "cors",
+            credentials: "include",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"

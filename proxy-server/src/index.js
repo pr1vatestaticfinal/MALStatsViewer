@@ -29,6 +29,9 @@ export default {
 		const tokenMatch = cookieHeader.match(/access_token=([^;]+)/);
 		const accessToken = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
 
+		console.log("Cookies received:", cookieHeader);
+		console.log("Extracted Access Token:", accessToken);
+
 		if (request.method === "OPTIONS") {
 			return new Response(null, {
 				status: 204,
@@ -55,7 +58,7 @@ export default {
 			const response = await fetch(apiUrl, {
 				method: request.method,
 				headers: {
-					"Authorization": accessToken,
+					"Authorization": `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
 					"Accept": "application/json",
 				},
