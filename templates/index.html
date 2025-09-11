@@ -4,11 +4,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MALStatsViewer</title>
     <meta name="description" content="Visualize stats from your MyAnimeList account">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>MAL Stats Viewer</h1>
-    <p>Visualize stats from your MyAnimeList account.</p>
-    <a href="{{ auth_url }}">
-        <button>Log in with MyAnimeList</button>
-    </a>
+    {% if user_data %}
+        <p>user log in successful</p>
+        <a href="{{ url_for('logout') }}" class="button">Log out</a>
+    {% else %}
+        <h1>MAL Stats Viewer</h1>
+        <p>Visualize stats from your MyAnimeList account.</p>
+        <a href="{{ url_for('login') }}" class="button">Log in with MyAnimeList</a>
+    {% endif %}
 </body>
