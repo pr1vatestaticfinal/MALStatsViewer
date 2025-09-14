@@ -8,8 +8,31 @@
 </head>
 <body>
     {% if user_data %}
-        <p>user log in successful</p>
+        <h1>MAL Stats Viewer</h1>
+        <h2>Welcome, {{ user_data.name }}</h2>
+        <p>You have made ... entries to your anime list this year.</p>
         <a href="{{ url_for('logout') }}" class="button">Log out</a>
+
+        <h2>10 Most Recently Added Entries</h2>
+        {% if recent_entries %}
+            <ul>
+                {% for entry in recent_entries %}
+                    <li>
+                        <strong>{{ entry.node.title }}</strong>
+                        <br>
+                        Score: {% if entry.list_status.score > 0 %}
+                                {{ entry.list_status.score }}
+                            {% else %}
+                                Not scored
+                            {% endif %}
+                        <br>
+                        Added/Updated: {{ entry.list_status.updated_at }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No anime list data found or an error occurred</p>
+        {% endif %}
     {% else %}
         <h1>MAL Stats Viewer</h1>
         <p>Visualize stats from your MyAnimeList account.</p>

@@ -3,6 +3,7 @@ import requests
 import uuid
 import secrets
 import os
+import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,31 +15,52 @@ CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 AUTH_URL = "https://myanimelist.net/v1/oauth2/authorize"
 USER_URL = "https://api.myanimelist.net/v2/users/@me"
+ANIME_LIST_URL = "https://api.myanimelist.net/v2/users/@me/animelist"
 TOKEN_URL = "https://myanimelist.net/v1/oauth2/token"
 
 
 def get_new_code_verifier() -> str:
-        token = secrets.token_urlsafe(100)
-        return token[:128]
+    token = secrets.token_urlsafe(100)
+    return token[:128]
 
 
 @app.route('/')
 def index():
     user_data = None
+    list_data = None
+    animes_this_year = 0
+    recent_entries = []
+
     if "access_token" in session:
         access_token  = session["access_token"]
         headers = {"Authorization": f"Bearer {access_token}"}
 
         try:
+            # Gathering user and list data
             user_response = requests.get(USER_URL, headers=headers)
             user_response.raise_for_status()
             user_data = user_response.json()
+
+            params = {
+            "fields": "list_status",
+            "sort": "list_updated_at",
+            "limit": 10
+            }
+
+            list_response = requests.get(ANIME_LIST_URL, headers=headers, params=params)
+            list_response.raise_for_status()
+            list_data = list_response.json()
+
+            print(list_data)
+
+            if list_data and "data" in list_data:
+                recent_entries = list_data["data"]
         except requests.exceptions.RequestException as e:
             print(f"Error fetching user data: {e}")
             session.pop("access_token", None)
             return redirect(url_for("index"))
         
-    return render_template("index.html", user_data=user_data)
+    return render_template("index.html", user_data=user_data, recent_entries=recent_entries)
         
 
 @app.route("/login")
