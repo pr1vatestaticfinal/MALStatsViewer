@@ -52,7 +52,8 @@ def index():
             params = {
             "fields": "list_status",
             "sort": "list_updated_at",
-            "limit": 10
+            "limit": 10,
+            "nsfw": True
             }
 
             list_response = requests.get(ANIME_LIST_URL, headers=headers, params=params)
