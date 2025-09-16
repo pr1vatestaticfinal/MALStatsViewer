@@ -10,14 +10,13 @@
     {% if user_data %}
         <h1>MAL Stats Viewer</h1>
         <h2>Welcome, {{ user_data.name }}</h2>
-        <p>You have made ... entries to your anime list this year.</p>
+        <p>You have made {{ entry_count }} updates to your anime list this year.</p>
         <a href="{{ url_for('logout') }}" class="button">Log out</a>
 
         <h2>10 Most Recently Added Entries</h2>
         {% if recent_entries %}
-            <ul>
                 {% for entry in recent_entries %}
-                    <li>
+                    <div class="list">
                         <strong>{{ entry.node.title }}</strong>
                         <br>
                         Score: {% if entry.list_status.score > 0 %}
@@ -26,10 +25,13 @@
                                 Not scored
                             {% endif %}
                         <br>
-                        Added/Updated: {{ entry.list_status.updated_at }}
-                    </li>
+                        Updated: {{ entry.list_status.updated_at | convert_timestamp() }}
+                        <br>
+                        Status: {{ entry.list_status.status }}
+                        <br>
+                        <br>
+                    </div>
                 {% endfor %}
-            </ul>
         {% else %}
             <p>No anime list data found or an error occurred</p>
         {% endif %}

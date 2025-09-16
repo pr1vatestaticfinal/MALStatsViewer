@@ -23,13 +23,21 @@ def get_new_code_verifier() -> str:
     token = secrets.token_urlsafe(100)
     return token[:128]
 
+def convert_timestamp(ts) -> str:
+    dt = datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S+00:00")
+    return dt.strftime("%B %d, %Y at %I:%M%p UTC")
+
+app.jinja_env.filters["convert_timestamp"] = convert_timestamp
 
 @app.route('/')
 def index():
     user_data = None
     list_data = None
-    animes_this_year = 0
+    next_url = None
+    from_this_year = True
+    entry_count = 0
     recent_entries = []
+    entries_this_year = []
 
     if "access_token" in session:
         access_token  = session["access_token"]
@@ -54,13 +62,46 @@ def index():
             print(list_data)
 
             if list_data and "data" in list_data:
+                for anime in list_data["data"]:
+                    dt = datetime.datetime.strptime(anime["list_status"]["updated_at"], "%Y-%m-%dT%H:%M:%S+00:00")
+                    if dt.year == datetime.datetime.now().year:
+                        entries_this_year.append(anime)
+                    else:
+                        from_this_year = False
+
+            if "paging" in list_data:
+                next_url = list_data["paging"]["next"]
+
+            while next_url and from_this_year:
+                next_response = requests.get(next_url, headers=headers, params=params)
+                next_response.raise_for_status()
+                next_data = next_response.json()
+                print(next_data)
+
+                if next_data and "data" in next_data:
+                    for anime in next_data["data"]:
+                        dt = datetime.datetime.strptime(anime["list_status"]["updated_at"], "%Y-%m-%dT%H:%M:%S+00:00")
+                        if dt.year == datetime.datetime.now().year:
+                            entries_this_year.append(anime)
+                        else:
+                            from_this_year = False
+                            break
+                
+                if "paging" in next_data:
+                    next_url = next_data["paging"]["next"]
+                else:
+                    next_url = None
+
+            entry_count = len(entries_this_year)
+
+            if list_data and "data" in list_data:
                 recent_entries = list_data["data"]
         except requests.exceptions.RequestException as e:
             print(f"Error fetching user data: {e}")
             session.pop("access_token", None)
             return redirect(url_for("index"))
         
-    return render_template("index.html", user_data=user_data, recent_entries=recent_entries)
+    return render_template("index.html", user_data=user_data, recent_entries=recent_entries, entry_count=entry_count, entries_this_year=entries_this_year)
         
 
 @app.route("/login")
