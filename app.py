@@ -1,10 +1,11 @@
-from flask import Flask, render_template, redirect, url_for, session, request
+from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 import requests
 import uuid
 import secrets
 import os
 import datetime
 from dotenv import load_dotenv
+from collections import Counter
 
 load_dotenv()
 
@@ -24,86 +25,185 @@ def get_new_code_verifier() -> str:
     return token[:128]
 
 def convert_timestamp(ts) -> str:
-    dt = datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S+00:00")
-    return dt.strftime("%B %d, %Y at %I:%M%p UTC")
+    try:
+        dt = datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S+00:00")
+        return dt.strftime("%B %d, %Y at %I:%M%p UTC")
+    except ValueError:
+        return "N/A"
 
 app.jinja_env.filters["convert_timestamp"] = convert_timestamp
+
+def get_anime_list_page(access_token: str, next_url: str = None) -> dict:
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    if next_url:
+        response = requests.get(next_url, headers=headers)
+    else:
+        params = {
+            "fields": "list_status,genres,title,mean_score,num_episodes",
+            "sort": "list_updated_at",
+            "limit": 100,
+            "nsfw": True
+        }
+        response = requests.get(ANIME_LIST_URL, headers=headers, params=params)
+
+    response.raise_for_status()
+    return response.json()
+
+def get_full_anime_list(access_token: str) -> list:
+    if "full_anime_list_cache" in session:
+        return session["full_anime_list_cache"]
+    
+    all_anime = []
+    next_url = None
+
+    try:
+        data = get_anime_list_page(access_token)
+        all_anime.extend(data.get("data", []))
+        next_url = data.get("paging", {}).get("next")
+
+        while next_url:
+            data = get_anime_list_page(access_token, next_url)
+            all_anime.extend(data.get("data", []))
+            next_url = data.get("paging", {}).get("next")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching full anime list: {e}")
+        return []
+    
+    session["full_anime_list_cache"] = all_anime
+    return all_anime
+
+def process_anime_data(anime_list: list, period: str) -> dict:
+    end_date = datetime.datetime.now(datetime.timezone.utc)
+
+    if period == "6m":
+        start_date = end_date - datetime.timedelta(days=180)
+    elif period == "1y":
+        start_date = end_date - datetime.timedelta(days=365)
+    elif period == "all":
+        start_date = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+    else:
+        start_date = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+
+    filtered_entries = []
+    genre_counts = Counter()
+
+    for entry in anime_list:
+        try:
+            ts_str = entry["list_status"]["updated_at"]
+            dt = datetime.datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S+00:00").replace(tzinfo=datetime.timezone.utc)
+
+            if dt >= start_date:
+                filtered_entries.append(entry)
+
+                anime_info = entry.get("node", {})
+                genres = anime_info.get("genres", [])
+                for genre in genres:
+                    genre_counts[genre["name"]] += 1
+        
+        except Exception:
+            continue
+
+    top_rated = sorted(
+        [e for e in filtered_entries if e["list_status"]["score"] > 0],
+        key=lambda x: x["list_status"]["score"],
+        reverse=True
+    )[:10]
+
+    total_genre_counts = sum(genre_counts.values())
+    genre_distribution = {}
+    if total_genre_counts > 0:
+        for genre, count in genre_counts.items():
+            genre_distribution[genre] = round((count / total_genre_counts) * 100, 2)
+    
+    sorted_genres = dict(sorted(genre_distribution.items(), key=lambda item: item[1], reverse=True))
+
+    return {
+        "entry_count": len(filtered_entries),
+        "top_rated": top_rated,
+        "genre_distribution": sorted_genres
+    }
+        
 
 @app.route('/')
 def index():
     user_data = None
-    list_data = None
-    next_url = None
-    from_this_year = True
-    entry_count = 0
     recent_entries = []
-    entries_this_year = []
 
     if "access_token" in session:
-        access_token  = session["access_token"]
+        access_token = session["access_token"]
         headers = {"Authorization": f"Bearer {access_token}"}
 
         try:
-            # Gathering user and list data
             user_response = requests.get(USER_URL, headers=headers)
             user_response.raise_for_status()
             user_data = user_response.json()
 
             params = {
-            "fields": "list_status",
-            "sort": "list_updated_at",
-            "limit": 10,
-            "nsfw": True
+                "fields": "list_status",
+                "sort": "list_updated_at",
+                "limit": 10,
+                "nsfw": True
             }
-
             list_response = requests.get(ANIME_LIST_URL, headers=headers, params=params)
             list_response.raise_for_status()
             list_data = list_response.json()
 
-            print(list_data)
+            recent_entries = list_data.get("data", [])
 
-            if list_data and "data" in list_data:
-                for anime in list_data["data"]:
-                    dt = datetime.datetime.strptime(anime["list_status"]["updated_at"], "%Y-%m-%dT%H:%M:%S+00:00")
-                    if dt.year == datetime.datetime.now().year:
-                        entries_this_year.append(anime)
-                    else:
-                        from_this_year = False
-
-            if "paging" in list_data:
-                next_url = list_data["paging"]["next"]
-
-            while next_url and from_this_year:
-                next_response = requests.get(next_url, headers=headers, params=params)
-                next_response.raise_for_status()
-                next_data = next_response.json()
-                print(next_data)
-
-                if next_data and "data" in next_data:
-                    for anime in next_data["data"]:
-                        dt = datetime.datetime.strptime(anime["list_status"]["updated_at"], "%Y-%m-%dT%H:%M:%S+00:00")
-                        if dt.year == datetime.datetime.now().year:
-                            entries_this_year.append(anime)
-                        else:
-                            from_this_year = False
-                            break
-                
-                if "paging" in next_data:
-                    next_url = next_data["paging"]["next"]
-                else:
-                    next_url = None
-
-            entry_count = len(entries_this_year)
-
-            if list_data and "data" in list_data:
-                recent_entries = list_data["data"]
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching user data: {e}")
+            print("Authentication/API Error: {e}. Clearing session.")
             session.pop("access_token", None)
-            return redirect(url_for("index"))
+            session.pop("refresh_token", None)
+            user_data = None
+
+    return render_template("index.html", user_data=user_data, recent_entries=recent_entries)
+
+@app.route("/data")
+def get_data_for_period():
+    if "access_token" not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    
+    period = request.args.get("period", "6m") # Default to 6 months
+    access_token = session["access_token"]
+
+    try:
+        full_list = get_full_anime_list(access_token)
+
+        if not full_list:
+            return jsonify({"error": "Could not fetch or access anime list data"}), 500
         
-    return render_template("index.html", user_data=user_data, recent_entries=recent_entries, entry_count=entry_count, entries_this_year=entries_this_year)
+        results = process_anime_data(full_list, period)
+
+        processed_top_rated = []
+        for entry in results["top_rated"]:
+            processed_top_rated.append({
+                "title": entry["node"]["title"],
+                "score": entry["list_status"]["score"],
+                "updated_at": entry["list_status"]["updated_at"],
+                "mean_score": entry["node"].get("mean_score"),
+                "num_episodes": entry["node"].get("num_episodes"),
+                "id": entry["node"]["id"]
+            })
         
+        return jsonify({
+            "period": period,
+            "entry_count": results["entry_count"],
+            "top_rated": processed_top_rated,
+            "genre_distribution": results["genre_distribution"]
+        })
+
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            # token expired
+            session.pop("access_token", None)
+            session.pop("full_anime_list_cache", None)
+            return jsonify({"error": f"API Error: {str(e)}"}), 500
+    except Exception as e:
+        print(f"Error processing data for period {period}: {e}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
 
 @app.route("/login")
 def login():
@@ -151,6 +251,7 @@ def callback():
 
         session.pop("oauth_state", None)
         session.pop("code_verifier", None)
+        session.pop("full_anime_list_cache", None)
 
         return redirect(url_for("index"))
     except requests.exceptions.RequestException as e:
