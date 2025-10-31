@@ -1,43 +1,291 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MALStatsViewer</title>
     <meta name="description" content="Visualize stats from your MyAnimeList account">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        body { font-family: sans-serif;}
+    </style>
 </head>
-<body>
-    {% if user_data %}
-        <h1>MAL Stats Viewer</h1>
-        <h2>Welcome, {{ user_data.name }}</h2>
-        <p>You have made {{ entry_count }} updates to your anime list this year.</p>
-        <a href="{{ url_for('logout') }}" class="button">Log out</a>
+<body class="bg-gray-100 p-4 sm:p-8 max-w-5xl mx-auto">
 
-        <h2>10 Most Recently Added Entries</h2>
-        {% if recent_entries %}
-                {% for entry in recent_entries %}
-                    <div class="list">
-                        <strong>{{ entry.node.title }}</strong>
-                        <br>
-                        Score: {% if entry.list_status.score > 0 %}
-                                {{ entry.list_status.score }}
-                            {% else %}
-                                Not scored
-                            {% endif %}
-                        <br>
-                        Updated: {{ entry.list_status.updated_at | convert_timestamp() }}
-                        <br>
-                        Status: {{ entry.list_status.status }}
-                        <br>
-                        <br>
-                    </div>
-                {% endfor %}
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "mal-blue": "#2e51a2"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <header class="pb-6 mb-8 border-b border-gray-300">
+        <h1 class="text-3xl font-extrabold mal-text mb-2">MALStatsViewer</h1>
+        {% if user_data %}
+            <h2 class="text-xl text-gray-700">Welcome, <span class="font-semibold">{{ user_data.name }}</span></h2>
+            <a href="{{ url_for('logout') }}" class="inline-block mt-3 px-4 py-2 text-sm font-medium text-white bg-mal-blue rounded-lg shadow hover:bg-blue-700 transition duration-150">
+                Log out
+            </a>
         {% else %}
-            <p>No anime list data found or an error occurred</p>
+            <p class="text-gray-600">Visualize stats from your MyAnimeList account.</p>
+            <a href="{{ url_for('login') }}" class="inline-block mt-3 px-6 py-2 text-sm font-medium text-white bg-mal-blue rounded-lg shadow hover:bg-blue-700 transition duration-150">
+                Log in with MyAnimeList
+            </a>
         {% endif %}
-    {% else %}
-        <h1>MAL Stats Viewer</h1>
-        <p>Visualize stats from your MyAnimeList account.</p>
-        <a href="{{ url_for('login') }}" class="button">Log in with MyAnimeList</a>
+    </header>
+
+    {% if user_data %}
+        <main class="space-y-8">
+            <!-- filter buttons-->
+            <section class="bg-white p-5 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Filter by Time Period</h3>
+                <div id="filter-buttons" class="flex flex-wrap gap-3">
+                    <button data-period="6m" class="filter-btn px-4 py-2 rounded-lg font-semibold text-white bg-mal-blue hover:bg-blue-700 transition duration-150 active:bg-blue-800">
+                        Past 6 Months
+                    </button>
+                    <button data-period="1y" class="filter-btn px-4 py-2 rounded-lg font-semibold text-mal-blue border border-mal-blue hover:bg-gray-200 transition duration-150">
+                        Past Year
+                    </button>
+                    <button data-period="all" class="filter-btn px-4 py-2 rounded-lg font-semibold text-mal-blue border border-mal-blue hover:bg-gray-200 transition duration-150">
+                        All Time
+                    </button>
+                </div>
+                <p id="loading-indicator" class="mt-4 text-orange-500 text-sm font-medium hidden">Loading and processing data...</p>
+                <p id="error-message" class="mt-4 text-red-500 text-sm font-medium hidden"></p>
+            </section>
+
+            <!-- dynamic data display (grid layout) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- entry count and stats -->
+                <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-mal-blue">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Updates in Period</h3>
+                    <p id="entry-count" class="text-5xl font-extrabold mal-text">0</p>
+                    <p class="text-sm text-gray-500 mt-2">List updates in the currently selected time window.</p>
+                </div>
+
+                <!-- genre distribution chart -->
+                <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-mal-blue">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Genre Distribution</h3>
+                    <div class="h-64 flex justify-center items-center">
+                        <canvas id="genrePieChart" class="max-w-full max-h-full"></canvas>
+                        <p id="chart-message" class="text-gray-500 hidden">Genre data will appear here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- top 10 highest rated entries -->
+            <section class="bg-white p-5 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Your Top 10 Highest Rated Entries</h3>
+                <div id="top-rated-list" class="space-y-2">
+                    <p class="text-gray-500">Select a time period to load your top entries.</p>
+                </div>
+            </section>
+
+            <!-- 10 most recently updated entries -->
+            <section class="bg-white p-5 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">10 Most Recently Updated Entries</h3>
+                <div class="space-y-2">
+                    {% if recent_entries %}
+                        {% for entry in recent_entries %}
+                            <div class="p-3 bg-gray-50 rounded-md border-l-4 border-gray-400 flex justify-between items-center text-sm sm:text-base">
+                                <span class="font-medium text-gray-700">
+                                    {{ entry.node.title }}
+                                    {% if entry.list_status.score > 0 %}
+                                        <span class="text-xs font-bold text-green-600 ml-2">({{ entry.list_status.score }}/10)</span>
+                                    {% endif %}
+                                </span>
+                                <span class="text-xs text-gray-500 whitespace-nowrap">
+                                    Updated: {{ entry.list_status.updated_at | convert_timestamp() }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500">No recent entries found.</p>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
     {% endif %}
+
+    <script>
+        let genreChart = null;
+
+        // unique colors for genres
+        function stringToHslColor(str, s, l) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = hash % 360;
+            return `hsl(${h}, ${s}, ${l}%)`;
+        }
+
+        async function fetchAndRenderData(period) {
+            const loadingIndicator = document.getElementById("loading-indicator");
+            const errorMessage = document.getElementById("error-message");
+            const filterButtons = document.querySelectorAll(".filter-btn");
+
+            loadingIndicator.classList.remove("hidden");
+            errorMessage.classList.add("hidden");
+            filterButtons.forEach(btn => btn.disabled = true);
+
+            filterButtons.forEach(btn => {
+                if (btn.dataset.period === period) {
+                    btn.classList.add("bg-mal-blue", "text-white");
+                    btn.classList.remove("border", "border-mal-blue", "text-mal-blue", "bg-gray-200");
+                } else {
+                    btn.classList.add("border", "border-mal-blue", "text-mal-blue");
+                    btn.classList.remove("bg-mal-blue", "text-white", "bg-gray-200");
+                }
+            });
+
+            try {
+                const response = await fetch(`/data?period=${period}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to fetch data");
+                }
+
+                document.getElementById("entry-count").textContent = data.entry_count.toLocaleString();
+                renderTopRated(data.top_rated);
+                renderGenreChart(data.genre_distribution);
+
+            } catch (error) {
+                console.error("Error fetching or processing data:", error);
+                errorMessage.textContent = `Error: ${error.message}. Please try again.`;
+                errorMessage.classList.remove("hidden");
+
+                document.getElementById("entry-count").textContent = "-";
+                document.getElementById("top-rated-element").innerHTML = '<p class="text-red-500">Could not load data for this period.</p>';
+                document.getElementById("chart-message").textContent = "Failed to load genre data.";
+                if (genreChart) {
+                    genreChart.destroy();
+                    genreChart = null;
+                }
+            } finally {
+                loadingIndicator.classList.add("hidden");
+                filterButtons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        function renderTopRated(entries) {
+            const listContainer = document.getElementById("top-rated-list");
+            listContainer.innerHTML = "";
+
+            if (entries.length === 0) {
+                listContainer.innerHTML = '<p class="text-gray-500">No scored entries found in this time period.</p>';
+                return;
+            }
+
+            entries.forEach((entry, index) => {
+                const item = document.createElement("div");
+                item.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border-l-4 border-green-500 transition duration-150";
+
+                const titleBlock = `
+                    <div class="flex items-center mb-1 sm:mb-0">
+                        <span class="text-lg font-bold w-6 text-gray-400">#${index + 1}</span>
+                        <a href="https://myanimelist.net/anime/${entry.id}" target="_blank" class="font-semibold text-gray-800 hover:text-mal-blue transition duration-150 ml-2">
+                            ${entry.title}
+                        </a>
+                    </div>
+                `;
+
+                const statsBlock = `
+                    <div class="flex text-sm space-x-4 ml-8 sm:ml-0 text-gray-600">
+                        <span class="font-bold text-lg text-green-600">Score: ${entry.score}</span>
+                        <span class="text-gray-500 text-xs">MAL Avg: ${entry.mean_score ? entry.mean_score.toFixed(2) : 'N/A'}</span>
+                    </div>
+                `;
+
+                item.innerHTML = titleBlock + statsBlock;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function renderGenreChart(genreDistribution) {
+            const chartCanvas = document.getElementById("genrePieChart");
+            const chartMessage = document.getElementById("chart-message");
+
+            if (genreChart) {
+                genreChart.destroy();
+            }
+
+            const genres = Object.keys(genreDistribution);
+            const percentages = Object.values(genreDistribution);
+
+            if (genres.length < 1 || percentages.reduce((a, b) => a + b, 0) < 1) {
+                chartMessage.textContent = "Not enough genre data available for this period";
+                chartMessage.classList.remove("hidden");
+                chartCanvas.classList.add("hidden");
+                return;
+            }
+
+            chartMessage.classList.add("hidden");
+            chartCanvas.classList.remove("hidden");
+
+            const colors = genres.map(genre => stringToHslColor(genre, 70, 50));
+
+            genreChart = new Chart(chartCanvas, {
+                type: "doughnut",
+                data: {
+                    labels: genres,
+                    datasets: [{
+                        label: "Genre Percentages",
+                        data: percentages,
+                        backgroundColor: colors,
+                        borderColor: "#ffffff",
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "70%",
+                    plugins: {
+                        legend: {
+                            position: "right",
+                            labels: {
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || "";
+                                    if (label) {
+                                        label += ": ";
+                                    }
+                                    if (context.parsed != null) {
+                                        label += context.parsed + "%";
+                                    }
+                                    return label
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (document.querySelector(".filter-btn")) {
+                document.querySelectorAll(".filter-btn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        fetchAndRenderData(event.currentTarget.dataset.period);
+                    });
+                });
+
+                fetchAndRenderData("6m");
+            }
+        });
+    </script>
+
 </body>
+</html>
