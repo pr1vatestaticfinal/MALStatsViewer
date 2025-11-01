@@ -40,7 +40,7 @@ def get_anime_list_page(access_token: str, next_url: str = None) -> dict:
         response = requests.get(next_url, headers=headers)
     else:
         params = {
-            "fields": "list_status,genres,title,mean_score,num_episodes",
+            "fields": "list_status,genres,title,mean,num_episodes",
             "sort": "list_updated_at",
             "limit": 100,
             "nsfw": True
@@ -182,7 +182,7 @@ def get_data_for_period():
                 "title": entry["node"]["title"],
                 "score": entry["list_status"]["score"],
                 "updated_at": entry["list_status"]["updated_at"],
-                "mean_score": entry["node"].get("mean_score"),
+                "mean": entry["node"].get("mean"),
                 "num_episodes": entry["node"].get("num_episodes"),
                 "id": entry["node"]["id"]
             })

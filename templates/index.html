@@ -46,13 +46,13 @@
             <section class="bg-white p-5 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Filter by Time Period</h3>
                 <div id="filter-buttons" class="flex flex-wrap gap-3">
-                    <button data-period="6m" class="filter-btn px-4 py-2 rounded-lg font-semibold text-white bg-mal-blue hover:bg-blue-700 transition duration-150 active:bg-blue-800">
+                    <button data-period="6m" class="filter-btn px-4 py-2 rounded-lg font-semibold transition duration-150">
                         Past 6 Months
                     </button>
-                    <button data-period="1y" class="filter-btn px-4 py-2 rounded-lg font-semibold text-mal-blue border border-mal-blue hover:bg-gray-200 transition duration-150">
+                    <button data-period="1y" class="filter-btn px-4 py-2 rounded-lg font-semibold transition duration-150">
                         Past Year
                     </button>
-                    <button data-period="all" class="filter-btn px-4 py-2 rounded-lg font-semibold text-mal-blue border border-mal-blue hover:bg-gray-200 transition duration-150">
+                    <button data-period="all" class="filter-btn px-4 py-2 rounded-lg font-semibold transition duration-150">
                         All Time
                     </button>
                 </div>
@@ -64,24 +64,28 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- entry count and stats -->
                 <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-mal-blue">
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Updates in Period</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Entries Made During Time Period</h3>
                     <p id="entry-count" class="text-5xl font-extrabold mal-text">0</p>
                     <p class="text-sm text-gray-500 mt-2">List updates in the currently selected time window.</p>
                 </div>
 
                 <!-- genre distribution chart -->
-                <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-mal-blue">
+                <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-mal-blue flex flex-col">
                     <h3 class="text-xl font-bold text-gray-900 mb-4">Genre Distribution</h3>
-                    <div class="h-64 flex justify-center items-center">
+                    <div class="h-64 flex justify-center items-center mb-4">
                         <canvas id="genrePieChart" class="max-w-full max-h-full"></canvas>
                         <p id="chart-message" class="text-gray-500 hidden">Genre data will appear here.</p>
+                    </div>
+
+                    <div id="genre-legend-container" class="mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-gray-500 text-sm">Legend details...</p>
                     </div>
                 </div>
             </div>
 
             <!-- top 10 highest rated entries -->
             <section class="bg-white p-5 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-900 mb-4">Your Top 10 Highest Rated Entries</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Your Top 10 Highest Rated Entries During Time Period</h3>
                 <div id="top-rated-list" class="space-y-2">
                     <p class="text-gray-500">Select a time period to load your top entries.</p>
                 </div>
@@ -89,13 +93,15 @@
 
             <!-- 10 most recently updated entries -->
             <section class="bg-white p-5 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-900 mb-4">10 Most Recently Updated Entries</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Recently Updated Entries</h3>
                 <div class="space-y-2">
                     {% if recent_entries %}
                         {% for entry in recent_entries %}
                             <div class="p-3 bg-gray-50 rounded-md border-l-4 border-gray-400 flex justify-between items-center text-sm sm:text-base">
                                 <span class="font-medium text-gray-700">
-                                    {{ entry.node.title }}
+                                    <a href="https://myanimelist.net/anime/{{ entry.node.id }}" target="_blank" class="font-semibold text-gray-800 hover:text-mal-blue transition duration-150">
+                                        {{ entry.node.title }}
+                                    </a>
                                     {% if entry.list_status.score > 0 %}
                                         <span class="text-xs font-bold text-green-600 ml-2">({{ entry.list_status.score }}/10)</span>
                                     {% endif %}
@@ -123,7 +129,7 @@
                 hash = str.charCodeAt(i) + ((hash << 5) - hash);
             }
             const h = hash % 360;
-            return `hsl(${h}, ${s}, ${l}%)`;
+            return `hsl(${h}, ${s}%, ${l}%)`;
         }
 
         async function fetchAndRenderData(period) {
@@ -137,11 +143,11 @@
 
             filterButtons.forEach(btn => {
                 if (btn.dataset.period === period) {
-                    btn.classList.add("bg-mal-blue", "text-white");
-                    btn.classList.remove("border", "border-mal-blue", "text-mal-blue", "bg-gray-200");
+                    btn.classList.add("bg-mal-blue", "text-white", "hover:bg-blue-700", "active:bg-blue-800");
+                    btn.classList.remove("border", "border-mal-blue", "text-mal-blue", "hover:bg-gray-200");
                 } else {
-                    btn.classList.add("border", "border-mal-blue", "text-mal-blue");
-                    btn.classList.remove("bg-mal-blue", "text-white", "bg-gray-200");
+                    btn.classList.add("border", "border-mal-blue", "text-mal-blue", "hover:bg-gray-200");
+                    btn.classList.remove("bg-mal-blue", "text-white", "hover:bg-blue-700", "active:bg-blue-800");
                 }
             });
 
@@ -156,6 +162,7 @@
                 document.getElementById("entry-count").textContent = data.entry_count.toLocaleString();
                 renderTopRated(data.top_rated);
                 renderGenreChart(data.genre_distribution);
+                renderCustomLegend(data.genre_distribution);
 
             } catch (error) {
                 console.error("Error fetching or processing data:", error);
@@ -163,8 +170,10 @@
                 errorMessage.classList.remove("hidden");
 
                 document.getElementById("entry-count").textContent = "-";
-                document.getElementById("top-rated-element").innerHTML = '<p class="text-red-500">Could not load data for this period.</p>';
+                document.getElementById("top-rated-list").innerHTML = '<p class="text-red-500">Could not load data for this period.</p>';
                 document.getElementById("chart-message").textContent = "Failed to load genre data.";
+                document.getElementById("chart-message").classList.remove("hidden");
+                document.getElementById("genre-legend-container").innerHTML = '<p class="text-gray-500 text-sm">Failed to load legend data.</p>';
                 if (genreChart) {
                     genreChart.destroy();
                     genreChart = null;
@@ -176,6 +185,7 @@
         }
 
         function renderTopRated(entries) {
+            console.log(entries);
             const listContainer = document.getElementById("top-rated-list");
             listContainer.innerHTML = "";
 
@@ -197,10 +207,15 @@
                     </div>
                 `;
 
+                const malAvg = entry.mean;
+                const malAvgDisplay = malAvg != null
+                    ? parseFloat(malAvg).toFixed(2)
+                    : "N/A";
+
                 const statsBlock = `
                     <div class="flex text-sm space-x-4 ml-8 sm:ml-0 text-gray-600">
                         <span class="font-bold text-lg text-green-600">Score: ${entry.score}</span>
-                        <span class="text-gray-500 text-xs">MAL Avg: ${entry.mean_score ? entry.mean_score.toFixed(2) : 'N/A'}</span>
+                        <span class="text-gray-500 text-xs">MAL Avg: ${malAvgDisplay}</span>
                     </div>
                 `;
 
@@ -250,10 +265,7 @@
                     cutout: "70%",
                     plugins: {
                         legend: {
-                            position: "right",
-                            labels: {
-                                font: { size: 12 }
-                            }
+                            display: false
                         },
                         tooltip: {
                             callbacks: {
@@ -271,6 +283,43 @@
                         }
                     }
                 }
+            });
+        }
+
+        function renderCustomLegend(genreDistribution) {
+            const legendContainer = document.getElementById("genre-legend-container");
+            legendContainer.innerHTML = "";
+
+            if (Object.keys(genreDistribution).length === 0) {
+                legendContainer.innerHTML = '<p class="text-gray-500 text-sm">No genre data available for the legend.</p>';
+                return;
+            }
+
+            legendContainer.className = "mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm";
+
+            Object.entries(genreDistribution).forEach(([genre, percentage]) => {
+                const color = stringToHslColor(genre, 70, 50);
+
+                const legendItem = document.createElement("div");
+                legendItem.className = "flex items-centers justify-between p-1 rounded-md transition duration-150 hover:bg-gray-100 cursor-default";
+
+                const genreName = document.createElement("span");
+                genreName.className = "flex items-center font-medium text-gray-700 truncate";
+
+                const colorSwatch = document.createElement("span");
+                colorSwatch.className = "inline-block w-3 h-3 rounded-full mr-2 flex-shrink-0 border border-gray-300 shadow-sm";
+                colorSwatch.style.backgroundColor = color;
+                
+                genreName.appendChild(colorSwatch);
+                genreName.innerHTML += genre;
+
+                const percentageValue = document.createElement("span");
+                percentageValue.className = "font-bold text-mal-blue text-right ml-2 flex-shrink-0";
+                percentageValue.textContent = `${percentage}%`;
+
+                legendItem.appendChild(genreName);
+                legendItem.appendChild(percentageValue);
+                legendContainer.appendChild(legendItem);
             });
         }
 
