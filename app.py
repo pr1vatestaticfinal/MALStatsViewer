@@ -111,6 +111,18 @@ def process_anime_data(anime_list: list, period: str) -> dict:
         reverse=True
     )[:10]
 
+    total_score = 0
+    scored_entry_count = 0
+    for entry in filtered_entries:
+        score = entry["list_status"]["score"]
+        if score > 0:
+            total_score += score
+            scored_entry_count += 1
+
+    average_score = 0
+    if scored_entry_count > 0:
+        average_score = total_score / scored_entry_count
+
     total_genre_counts = sum(genre_counts.values())
     genre_distribution = {}
     if total_genre_counts > 0:
@@ -122,7 +134,8 @@ def process_anime_data(anime_list: list, period: str) -> dict:
     return {
         "entry_count": len(filtered_entries),
         "top_rated": top_rated,
-        "genre_distribution": sorted_genres
+        "genre_distribution": sorted_genres,
+        "average_score": average_score
     }
         
 
@@ -191,7 +204,8 @@ def get_data_for_period():
             "period": period,
             "entry_count": results["entry_count"],
             "top_rated": processed_top_rated,
-            "genre_distribution": results["genre_distribution"]
+            "genre_distribution": results["genre_distribution"],
+            "average_score": results["average_score"]
         })
 
     except requests.exceptions.HTTPError as e:
