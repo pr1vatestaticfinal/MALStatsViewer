@@ -51,8 +51,8 @@ def get_anime_list_page(access_token: str, next_url: str = None) -> dict:
     return response.json()
 
 def get_full_anime_list(access_token: str) -> list:
-    if "full_anime_list_cache" in session:
-        return session["full_anime_list_cache"]
+    # if "full_anime_list_cache" in session:
+    #     return session["full_anime_list_cache"]
     
     all_anime = []
     next_url = None
@@ -71,7 +71,7 @@ def get_full_anime_list(access_token: str) -> list:
         print(f"Error fetching full anime list: {e}")
         return []
     
-    session["full_anime_list_cache"] = all_anime
+    #session["full_anime_list_cache"] = all_anime
     return all_anime
 
 def process_anime_data(anime_list: list, period: str) -> dict:
@@ -166,7 +166,7 @@ def index():
             recent_entries = list_data.get("data", [])
 
         except requests.exceptions.RequestException as e:
-            print("Authentication/API Error: {e}. Clearing session.")
+            print(f"Authentication/API Error: {e}. Clearing session.")
             session.pop("access_token", None)
             session.pop("refresh_token", None)
             user_data = None
@@ -212,7 +212,7 @@ def get_data_for_period():
         if e.response.status_code == 401:
             # token expired
             session.pop("access_token", None)
-            session.pop("full_anime_list_cache", None)
+            # session.pop("full_anime_list_cache", None)
             return jsonify({"error": f"API Error: {str(e)}"}), 500
     except Exception as e:
         print(f"Error processing data for period {period}: {e}")
@@ -265,7 +265,7 @@ def callback():
 
         session.pop("oauth_state", None)
         session.pop("code_verifier", None)
-        session.pop("full_anime_list_cache", None)
+        #session.pop("full_anime_list_cache", None)
 
         return redirect(url_for("index"))
     except requests.exceptions.RequestException as e:
