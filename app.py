@@ -42,10 +42,10 @@ def get_anime_list_page(access_token: str, next_url: str = None) -> dict:
         params = {
             "fields": "list_status,genres,title,mean,num_episodes",
             "sort": "list_updated_at",
-            "limit": 100,
+            "limit": 1000,
             "nsfw": True
         }
-        response = requests.get(ANIME_LIST_URL, headers=headers, params=params)
+        response = requests.get(ANIME_LIST_URL, headers=headers, params=params, timeout=10)
 
     response.raise_for_status()
     return response.json()
